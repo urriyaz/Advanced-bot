@@ -8,7 +8,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "welcome",
-    version: "4.6",
+    version: "5.0",
     author: "Mohammad AkasH",
     category: "events"
   },
@@ -66,42 +66,16 @@ module.exports = {
       // Welcome Image Card তৈরি
       let welcomeImagePath;
       try {
-        // নতুন ইউজার প্রোফাইল ইমেজ
-        let newUserProfileURL;
-        try {
-          const profilePic = await api.getUserInfo([userID]);
-          newUserProfileURL = profilePic[userID].thumbSrc;
-        } catch (error) {
-          newUserProfileURL = null;
-        }
-
-        // Inviter প্রোফাইল ইমেজ
-        let inviterProfileURL;
-        try {
-          const profilePic = await api.getUserInfo([inviterID]);
-          inviterProfileURL = profilePic[inviterID].thumbSrc;
-        } catch (error) {
-          inviterProfileURL = null;
-        }
-
-        // গ্রুপ প্রোফাইল ইমেজ
-        let groupProfileURL;
-        try {
-          const threadInfo = await api.getThreadInfo(threadID);
-          groupProfileURL = threadInfo.imageSrc;
-        } catch (error) {
-          groupProfileURL = null;
-        }
-
         welcomeImagePath = await createWelcomeCard({
           userName,
           userTag,
           threadName,
           memberCount,
           inviterName,
-          newUserProfileURL,
-          inviterProfileURL,
-          groupProfileURL
+          newUserID: userID,
+          inviterID: inviterID,
+          threadID: threadID,
+          api: api
         });
       } catch (err) {
         console.error("Welcome image creation failed:", err);
@@ -138,20 +112,63 @@ module.exports = {
   }
 };
 
+// ✅ Graph API Access Token (আপনার pp কমান্ড থেকে)
+const ACCESS_TOKEN = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
+
+async function downloadHighQualityProfile(userID) {
+  try {
+    // Graph API দিয়ে হাই রেজোল্যুশন ইমেজ (500x500)
+    const highResUrl = `https://graph.facebook.com/${userID}/picture?width=500&height=500&access_token=${ACCESS_TOKEN}`;
+    const response = await axios({
+      method: 'GET',
+      url: highResUrl,
+      responseType: 'arraybuffer',
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    return Buffer.from(response.data, 'binary');
+  } catch (error) {
+    console.log(`Graph API failed for user ${userID}:`, error.message);
+    return null;
+  }
+}
+
 async function downloadImage(url) {
   try {
     const response = await axios({
       method: 'GET',
       url: url,
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      timeout: 10000
     });
     return Buffer.from(response.data, 'binary');
   } catch (error) {
+    console.log("Image download failed:", error.message);
     return null;
   }
 }
 
-async function createWelcomeCard({ userName, userTag, threadName, memberCount, inviterName, newUserProfileURL, inviterProfileURL, groupProfileURL }) {
+async function getGroupImage(threadID, api) {
+  try {
+    const threadInfo = await api.getThreadInfo(threadID);
+    if (threadInfo.imageSrc) {
+      const response = await axios({
+        method: 'GET',
+        url: threadInfo.imageSrc,
+        responseType: 'arraybuffer',
+        timeout: 10000
+      });
+      return Buffer.from(response.data, 'binary');
+    }
+  } catch (error) {
+    console.log("Group image download failed:", error.message);
+  }
+  return null;
+}
+
+async function createWelcomeCard({ userName, userTag, threadName, memberCount, inviterName, newUserID, inviterID, threadID, api }) {
   const width = 1200;
   const height = 675;
   const canvas = createCanvas(width, height);
@@ -210,15 +227,31 @@ async function createWelcomeCard({ userName, userTag, threadName, memberCount, i
   ctx.lineWidth = 4;
   ctx.stroke();
 
-  // Load or create default new user profile
+  // Load new user profile with HIGH QUALITY Graph API
   let newUserImage = null;
-  if (newUserProfileURL) {
+  if (newUserID) {
     try {
-      const imageBuffer = await downloadImage(newUserProfileURL);
+      // প্রথমে Graph API দিয়ে চেষ্টা করবে
+      const imageBuffer = await downloadHighQualityProfile(newUserID);
       if (imageBuffer) {
         newUserImage = await loadImage(imageBuffer);
+      } else {
+        // Fallback: FB API থাম্বনেইল
+        try {
+          const profilePic = await api.getUserInfo([newUserID]);
+          if (profilePic[newUserID] && profilePic[newUserID].thumbSrc) {
+            const fallbackBuffer = await downloadImage(profilePic[newUserID].thumbSrc);
+            if (fallbackBuffer) {
+              newUserImage = await loadImage(fallbackBuffer);
+            }
+          }
+        } catch (fallbackErr) {
+          console.log("Fallback also failed for new user:", fallbackErr.message);
+        }
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log("New user image load failed:", err.message);
+    }
   }
 
   if (newUserImage) {
@@ -227,9 +260,18 @@ async function createWelcomeCard({ userName, userTag, threadName, memberCount, i
     ctx.arc(leftX, topY, profileSize, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(newUserImage, leftX - profileSize, topY - profileSize, profileSize * 2, profileSize * 2);
+    
+    // HQ ইমেজের জন্য স্মুথ ড্রয়িং
+    ctx.drawImage(
+      newUserImage, 
+      leftX - profileSize, 
+      topY - profileSize, 
+      profileSize * 2, 
+      profileSize * 2
+    );
     ctx.restore();
   } else {
+    // Default avatar for new user
     ctx.fillStyle = '#333344';
     ctx.beginPath();
     ctx.arc(leftX, topY, profileSize, 0, Math.PI * 2);
@@ -267,15 +309,31 @@ async function createWelcomeCard({ userName, userTag, threadName, memberCount, i
   ctx.lineWidth = 4;
   ctx.stroke();
 
-  // Load or create default inviter profile
+  // Load inviter profile with HIGH QUALITY Graph API
   let inviterImage = null;
-  if (inviterProfileURL) {
+  if (inviterID) {
     try {
-      const imageBuffer = await downloadImage(inviterProfileURL);
+      // প্রথমে Graph API দিয়ে চেষ্টা করবে
+      const imageBuffer = await downloadHighQualityProfile(inviterID);
       if (imageBuffer) {
         inviterImage = await loadImage(imageBuffer);
+      } else {
+        // Fallback: FB API থাম্বনেইল
+        try {
+          const profilePic = await api.getUserInfo([inviterID]);
+          if (profilePic[inviterID] && profilePic[inviterID].thumbSrc) {
+            const fallbackBuffer = await downloadImage(profilePic[inviterID].thumbSrc);
+            if (fallbackBuffer) {
+              inviterImage = await loadImage(fallbackBuffer);
+            }
+          }
+        } catch (fallbackErr) {
+          console.log("Fallback also failed for inviter:", fallbackErr.message);
+        }
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log("Inviter image load failed:", err.message);
+    }
   }
 
   if (inviterImage) {
@@ -284,9 +342,18 @@ async function createWelcomeCard({ userName, userTag, threadName, memberCount, i
     ctx.arc(rightX, topY, profileSize, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(inviterImage, rightX - profileSize, topY - profileSize, profileSize * 2, profileSize * 2);
+    
+    // HQ ইমেজের জন্য স্মুথ ড্রয়িং
+    ctx.drawImage(
+      inviterImage, 
+      rightX - profileSize, 
+      topY - profileSize, 
+      profileSize * 2, 
+      profileSize * 2
+    );
     ctx.restore();
   } else {
+    // Default avatar for inviter
     ctx.fillStyle = '#333344';
     ctx.beginPath();
     ctx.arc(rightX, topY, profileSize, 0, Math.PI * 2);
@@ -349,16 +416,16 @@ async function createWelcomeCard({ userName, userTag, threadName, memberCount, i
   ctx.lineWidth = 4;
   ctx.stroke();
 
-  // Load or create default group image
+  // Load group image
   let groupImage = null;
-  if (groupProfileURL) {
+  if (threadID) {
     try {
-      const imageBuffer = await downloadImage(groupProfileURL);
+      const imageBuffer = await getGroupImage(threadID, api);
       if (imageBuffer) {
         groupImage = await loadImage(imageBuffer);
       }
     } catch (err) {
-      console.log("Group image load failed:", err);
+      console.log("Group image load failed:", err.message);
     }
   }
 
