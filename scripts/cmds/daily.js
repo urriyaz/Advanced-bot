@@ -1,47 +1,56 @@
 const Database = require("better-sqlite3");
 const path = require("path");
 
-// === DATABASE SETUP ===
 const dbPath = path.join(__dirname, "balance.db");
 const db = new Database(dbPath);
+
+// === TABLE SETUP ===
 db.prepare(`
   CREATE TABLE IF NOT EXISTS balances (
     userID TEXT PRIMARY KEY,
-    balance INTEGER,
-    lastDaily INTEGER
+    balance INTEGER
+  )
+`).run();
+
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS daily_claims (
+    userID TEXT PRIMARY KEY,
+    lastClaim INTEGER
   )
 `).run();
 
 // === BALANCE FUNCTIONS ===
 function getBalance(userID) {
-  const row = db.prepare("SELECT balance FROM balances WHERE userID=?").get(userID);
-  if (row) return row.balance || 100;
-  return 100;
+  const row = db.prepare("SELECT balance FROM balances WHERE userID = ?").get(userID);
+  return row ? row.balance : 100; // default 100$
 }
 
 function setBalance(userID, balance) {
-  const now = Date.now();
   db.prepare(`
-    INSERT INTO balances (userID, balance, lastDaily)
-    VALUES (?, ?, ?)
+    INSERT INTO balances (userID, balance)
+    VALUES (?, ?)
     ON CONFLICT(userID) DO UPDATE SET balance=excluded.balance
-  `).run(userID, balance, now);
+  `).run(userID, balance);
 }
 
-function getLastDaily(userID) {
-  const row = db.prepare("SELECT lastDaily FROM balances WHERE userID=?").get(userID);
-  return row?.lastDaily || 0;
+// === DAILY FUNCTIONS ===
+function canClaim(userID) {
+  const row = db.prepare("SELECT lastClaim FROM daily_claims WHERE userID = ?").get(userID);
+  if (!row) return true;
+  const now = Date.now();
+  return now - row.lastClaim >= 24 * 60 * 60 * 1000; // 24 hours
 }
 
-function setLastDaily(userID) {
+function updateClaim(userID) {
   const now = Date.now();
   db.prepare(`
-    INSERT INTO balances (userID, balance, lastDaily)
-    VALUES (?, ?, ?)
-    ON CONFLICT(userID) DO UPDATE SET lastDaily=excluded.lastDaily
-  `).run(userID, getBalance(userID), now);
+    INSERT INTO daily_claims (userID, lastClaim)
+    VALUES (?, ?)
+    ON CONFLICT(userID) DO UPDATE SET lastClaim=excluded.lastClaim
+  `).run(userID, now);
 }
 
+// === FORMAT BALANCE ===
 function formatBalance(num) {
   if (num >= 1e12) return (num / 1e12).toFixed(2).replace(/\.00$/, '') + "T$";
   if (num >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + "B$";
@@ -50,47 +59,46 @@ function formatBalance(num) {
   return num + "$";
 }
 
-// === MODULE CONFIG ===
+// === MODULE EXPORT ===
 module.exports = {
   config: {
     name: "daily",
     aliases: ["claim"],
-    version: "1.0",
+    version: "2.0",
     author: "MOHAMMAD AKASH",
-    role: 0,
     shortDescription: "Claim your daily reward",
+    role: 0,
     category: "game",
-    guide: { en: "{p}daily – Claim daily reward" }
+    guide: { en: "{p}daily - claim your daily reward" }
   },
 
   onStart: async function({ api, event }) {
-    const { senderID, threadID, messageID } = event;
-    const now = Date.now();
-    const lastClaim = getLastDaily(senderID);
+    const userID = event.senderID;
 
-    // 24 ঘণ্টা চেক
-    if (now - lastClaim < 24 * 60 * 60 * 1000) {
-      const remaining = 24 * 60 * 60 * 1000 - (now - lastClaim);
+    // ===== COOLDOWN CHECK =====
+    if (!canClaim(userID)) {
+      const row = db.prepare("SELECT lastClaim FROM daily_claims WHERE userID = ?").get(userID);
+      const remaining = 24 * 60 * 60 * 1000 - (Date.now() - row.lastClaim);
       const hours = Math.floor(remaining / (1000 * 60 * 60));
       const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
       return api.sendMessage(
-        `⏳ 𝐃ᴀɪʟʏ 𝐑ᴇᴡᴀʀᴅ already claimed!\nNext claim in ${hours}h ${minutes}m.`,
-        threadID, messageID
+        `⏳ 𝐘ᴏᴜ 𝐇ᴀᴠᴇ 𝐀ʟʀᴇᴀᴅʏ 𝐂ʟᴀɪᴍᴇᴅ 𝐘ᴏᴜʀ 𝐃ᴀɪʟʏ 𝐑ᴇᴡᴀʀᴅ!\n𝐍ᴇxᴛ 𝐂ʟᴀɪᴍ 𝐈ɴ: ${hours}ʜ ${minutes}ᴍ ${seconds}s`,
+        event.threadID
       );
     }
 
-    // দৈনিক রিওয়ার্ড
-    const reward = Math.floor(Math.random() * 501) + 500; // 500$–1000$
-    const oldBalance = getBalance(senderID);
-    const newBalance = oldBalance + reward;
+    // ===== GIVE REWARD =====
+    const reward = Math.floor(Math.random() * 500) + 500; // 500$ - 1000$
+    let balance = getBalance(userID);
+    balance += reward;
+    setBalance(userID, balance);
+    updateClaim(userID);
 
-    setBalance(senderID, newBalance);
-    setLastDaily(senderID);
-
-    const output = `🎉 𝐃ᴀɪʟʏ 𝐑ᴇᴡᴀʀᴅ 𝐂ʟᴀɪᴍᴇᴅ!
-💰 𝐘ᴏᴜ 𝐑ᴇᴄᴇɪᴠᴇᴅ: ${formatBalance(reward)}
-🏦 𝐍ᴇᴡ 𝐁ᴀʟᴀɴᴄᴇ: ${formatBalance(newBalance)}`;
-
-    return api.sendMessage(output, threadID, messageID);
+    return api.sendMessage(
+      `🎉 𝐃ᴀɪʟʏ 𝐑ᴇᴡᴀʀᴅ 𝐂ʟᴀɪᴍᴇᴅ!\n💰 𝐘ᴏᴜ 𝐑ᴇᴄᴇɪᴠᴇᴅ: ${reward}$\n🏦 𝐍ᴇᴡ 𝐁ᴀʟᴀɴᴄᴇ: ${formatBalance(balance)}`,
+      event.threadID
+    );
   }
 };
