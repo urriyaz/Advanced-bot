@@ -17,7 +17,7 @@ module.exports = {
     // বন্ধ করার কমান্ড
     if (args[0] === "off") {
       activeFun.delete(event.threadID);
-      return message.reply("🛑 Fun mode stopped.");
+      return message.reply("𝐑𝐘𝐙 তোর রিয়েল আব্বু 😵💫");
     }
 
     // কাউকে মেনশন না করলে এরর দিবে
@@ -61,7 +61,7 @@ module.exports = {
     ];
 
     activeFun.set(event.threadID, true);
-    message.reply("✅ Murgi mode started!");
+    message.reply("𝐑𝐘𝐙 তোরে চুদা শুরু করলো");
 
     let count = 0;
     const limit = 50; // কয়টা মেসেজ দিবে তার লিমিট
