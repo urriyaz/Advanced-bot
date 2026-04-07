@@ -19,7 +19,7 @@ module.exports = {
       // ❌ নিজের / বটের মেসেজে রিয়েক্ট না
       if (senderID === api.getCurrentUserID()) return;
 
-      // ❌ হালকা cooldown (2.5s)
+      // ❌ হালকা cooldown (1.5s)
       global.__autoReactCooldown ??= {};
       if (
         global.__autoReactCooldown[threadID] &&
@@ -42,7 +42,6 @@ module.exports = {
         { e: ["😮","😱","😲"], r: "😮" },
         { e: ["😎","🔥","💯"], r: "😎" },
         { e: ["👍","👌","🙏"], r: "👍" },
-        { e: ["🎉","🥳"], r: "🎉" }
       ];
 
       // ==========================
