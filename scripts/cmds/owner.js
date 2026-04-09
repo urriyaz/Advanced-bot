@@ -18,17 +18,17 @@ module.exports = {
   onStart: async function ({ api, event }) {
     const ownerText = 
 `╭─ 👑 Oᴡɴᴇʀ Iɴғᴏ 👑 ─╮
-│ 👤 Nᴀᴍᴇ       : Mᴏʜᴀᴍᴍᴀᴅ Aᴋᴀsʜ
+│ 👤 Nᴀᴍᴇ       : 𝐑𝐈𝐘𝐀𝐙 𝐀𝐇𝐌𝐄𝐃
 │ 🧸 Nɪᴄᴋ       : Aᴋᴀsʜ
-│ 🎂 Aɢᴇ        : 18+
+│ 🎂 Aɢᴇ        : 𝟏𝟔+
 │ 💘 Rᴇʟᴀᴛɪᴏɴ : Sɪɴɢʟᴇ
 │ 🎓 Pʀᴏғᴇssɪᴏɴ : Sᴛᴜᴅᴇɴᴛ
 │ 📚 Eᴅᴜᴄᴀᴛɪᴏɴ : Iɴᴛᴇʀ 2ɴᴅ Yᴇᴀʀ
-│ 🏡 Lᴏᴄᴀᴛɪᴏɴ : 𝐃𝐡𝐚𝐤𝐚 - 𝐆𝐚𝐳𝐢𝐩𝐮𝐫
+│ 🏡 Lᴏᴄᴀᴛɪᴏɴ : 𝐈𝐭𝐚𝐥𝐲
 ├─ 🔗 Cᴏɴᴛᴀᴄᴛ ─╮
-│ 📘 Facebook  : fb.com/akashx404 
-│ 💬 Messenger: m.me/akashx404 
-│ 📞 WhatsApp  : wa.me/01933165880
+│ 📘 Facebook  : 𝐃𝐢𝐦𝐮 𝐧𝐚 
+│ 💬 Messenger: 𝐆𝐅 𝐧𝐚𝐢 😞
+│ 📞 WhatsApp  : 𝐝𝐢𝐦𝐮 𝐧𝐚 𝐬𝐨𝐫
 ╰────────────────╯`;
 
     const cacheDir = path.join(__dirname, "cache");
