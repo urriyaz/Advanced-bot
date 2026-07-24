@@ -19,7 +19,7 @@ module.exports = {
     var arraytag = []; 
         arraytag.push({id: mention, tag: name});
     var a = function (a) { api.sendMessage(a, event.threadID); }
-setTimeout(() => {a({body: "কিরে মাদারচোত 𝐑𝐘𝐙 এর চুদন খাওয়ায় জন্য রেডি তো?" + "লে চুদা খা মাঙ্গের বেটা 😂😂" + name, mentions: arraytag})}, 3000);
+setTimeout(() => {a({body: "কিরে মাদারচোত Shiblu এর চুদন খাওয়ায় জন্য রেডি তো?" + "লে চুদা খা মাঙ্গের বেটা 😂😂" + name, mentions: arraytag})}, 3000);
 setTimeout(() => {a({body: "মাঘি চুদা শরের বাচ্চা কার লগে পাঙ্গা নিতে আসছিস 🤬🤬🤬" + " " + name, mentions: arraytag})}, 5000);
 setTimeout(() => {a({body: " চুদে গুহা ফাঁক করে দিব খানকীর পোলা 🤤" + " " + name, mentions: arraytag})}, 7000);
 setTimeout(() => {a({body: " মাদারচোত বোকাচোদা খানকীর পোলা বোকা চোদা" + " " + name, mentions: arraytag})}, 9000);
@@ -40,7 +40,7 @@ setTimeout(() => {a({body: " তোর মার ভুদায় জুতা
 setTimeout(() => {a({body: " আয় আমার হোল টা চুষে দে ডেরশ টাকা দিমু🥵🥵" + " " + name, mentions: arraytag})}, 38000);
 setTimeout(() => {a({body: " বাপ কে ভুলিস না বোকাচোদার বাচ্চা 🤬🤬🤬🤬🤬" + " " + name, mentions: arraytag})}, 40000);
 setTimeout(() => {a({body: " আব্বু ডাক মাফ করে দিব " + " " + name, mentions: arraytag})}, 44000);
-setTimeout(() => {a({body: " 𝐑𝐘𝐙 রে আব্বু ডাক মাফ করে দিমু" + " " + name, mentions: arraytag})}, 460000);
+setTimeout(() => {a({body: " Shiblu রে আব্বু ডাক মাফ করে দিমু" + " " + name, mentions: arraytag})}, 460000);
 setTimeout(() => {a({body: " কিরে কথা বলিস না কেন ভয় পাইলি নাকি" + " " + name, mentions: arraytag})}, 48000);
 setTimeout(() => {a({body: " মাঘীর ছেলে Sebla kotha bolis na kn 🫤" + " " + name, mentions: arraytag})} , 50000);
 setTimeout(() => {a({body: " আজকে তোকে প্যান্ট না খুলেই চুদবো 🤬 তোর মাকে একটু আগেই চুঁদে আসলাম 😂" + " " + name, mentions: arraytag})} , 52000);
@@ -57,8 +57,8 @@ setTimeout(() => {a({body: " তোরে মুততে মুততে চু
 setTimeout(() => {a({body: " চুঁদে পাউরুটি বানায় তোর হোগায় ভরে দিব মাঙ্গের বেতা চিনিস আমারে???" + " " + name, mentions: arraytag})} , 76000);
 setTimeout(() => {a({body: " খানকীর পোলা তোর বাপকে ভুলে গেলি?? জন্ম দেওয়া ভুল হইলো 🤬🤬🤬" + " " + name, mentions: arraytag})} , 78000);
 setTimeout(() => {a({body: "বোকাচোদার বাচ্চা সেবলা নবিন" + " " + name, mentions: arraytag})} , 80000);
-setTimeout(() => {a({body: " 𝐑𝐘𝐙 রে আব্বু ডাক মাফ করে দিমু" + " " + name, mentions: arraytag})} , 82000);
+setTimeout(() => {a({body: " Shiblu রে আব্বু ডাক মাফ করে দিমু" + " " + name, mentions: arraytag})} , 82000);
 setTimeout(() => {a({body: " তোর মার ভুদা ফাটে দিব মঙ্গের বেটা কার লগে লাগতে আসছিস 🤬" + " " + name, mentions: arraytag})} , 84000);
-setTimeout(() => {a({body: " 𝐑𝐘𝐙 এর চুদন কেমন লাগলো বাচ্চা 🤣🤣🤣🤣??" + " " + name, mentions: arraytag})} , 84000);
+setTimeout(() => {a({body: " Shiblu এর চুদন কেমন লাগলো বাচ্চা 🤣🤣🤣🤣??" + " " + name, mentions: arraytag})} , 84000);
   }
 };
