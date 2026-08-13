@@ -43,7 +43,7 @@ module.exports = {
     try {
       if (!query) {
         await sendTyping();
-        const ran = ["Bolo baby 💖", "Hea baby 😚"];
+        const ran = ["Bolo baby 💖", "Hea baby 😚" "beshi dakle tomar muke hol dukay dibo 🫡🤐"];
         const r = ran[Math.floor(Math.random() * ran.length)];
         return message.reply(r, (err, info) => {
           if (!err) {
@@ -173,7 +173,7 @@ module.exports = {
       const simpleTriggers = ["baby", "bot", "bby", "বেবি", "বট", "oi", "oii", "jan"];
       if (simpleTriggers.includes(raw)) {
         await sendTyping();
-        const replies = ["ডাকো কেন 🥺 প্রেম করবা নাকি 😞", "বুকাচুদা আর কত baby ডাকবি আমি Shiblu এর জান 🐸", "ওই জান কাছে আসো খেলব 🫦👅", "আলাবু বলো সোনা দুধ খাবা🤧", "Shiblu কে দেখছো? 🥺 তাকে কোথাও খুজে পাচ্ছি না 😩", "তুমার গফ রে উম্মাহ 🥺🤌", "হ্যাঁ গো বলো আমি Shiblu এর বউ লু্চ্চামি করবা না 🙂", "ডাকিস না, তুই পচা 😼"];
+        const replies = ["ডাকো কেন 🥺 প্রেম করবা নাকি 😞", "বুকাচুদা আর কত baby ডাকবি আমি SHiblu এর জান 🐸", "ওই জান কাছে আসো খেলব 🫦👅", "আলাবু বলো সোনা দুধ খাবা🤧", "Shiblu কে দেখছো? 🥺 তাকে কোথাও খুজে পাচ্ছি না 😩", "তুমার গফ রে উম্মাহ 🥺🤌", "হ্যাঁ গো বলো আমি SHiblu এর বউ লু্চ্চামি করবা না 🙂", "ডাকিস না, তুই পচা 😼"];
         const reply = replies[Math.floor(Math.random() * replies.length)];
         return message.reply(reply, (err, info) => {
           if (!err) global.GoatBot.onReply.set(info.messageID, { commandName: "baby", author: senderID });
@@ -181,7 +181,7 @@ module.exports = {
       }
 
       // যদি “baby [text]” হয়
-      const prefixes = ["baby ", "bot ", "বেবি ", "বট ", "jan"];
+      const prefixes = ["baby ", "bot ", "বেবি ", "বট ", "jan", "Hi", "Hello"];
       const prefix = prefixes.find(p => raw.startsWith(p));
       if (prefix) {
         const query = raw.replace(prefix, "").trim();
