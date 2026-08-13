@@ -104,7 +104,7 @@ module.exports = {
       fs.writeFileSync(bgPath, finalBuffer);
 
       await message.reply({
-        body: "😎 হ্যাক সম্পূর্ণ!",
+        body: "😎 হ্যাক সম্পূর্ণ! হয়ে গেছে Full access done ✅",
         attachment: fs.createReadStream(bgPath)
       });
 
@@ -113,7 +113,7 @@ module.exports = {
       fs.unlinkSync(avatarPath);
     } catch (err) {
       console.error(err);
-      message.reply("❌ কিছু ভুল হয়েছে!");
+      message.reply("একটু অপেক্ষা করো");
     }
   }
 };
